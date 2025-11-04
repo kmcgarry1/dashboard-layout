@@ -22,13 +22,9 @@ const WIDTH_CLASSES = {
   xl: "lg:max-w-[500px] lg:basis-[500px]",
 } as const;
 
-const columnClass = computed(() =>
-  props.width
-    ? [
-        "flex flex-1 w-full flex-col overflow-auto px-2",
-        "lg:flex-none",
-        WIDTH_CLASSES[props.width],
-      ]
-    : ["flex flex-1 w-full flex-col overflow-auto px-2"]
-);
+const columnClass = computed(() => [
+  "flex flex-1 w-full flex-col overflow-auto px-2",
+  "lg:flex-none",
+  WIDTH_CLASSES[props.width],
+]);
 </script>
