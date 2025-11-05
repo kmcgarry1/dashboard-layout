@@ -26,8 +26,7 @@ const sizeClasses = {
 const variantClasses = {
   default: "border border-slate-200 bg-white shadow-sm",
   outlined: "border-2 border-slate-200 bg-white",
-  elevated:
-    "border border-transparent bg-white shadow-lg shadow-slate-200/70",
+  elevated: "border border-transparent bg-white shadow-lg shadow-slate-200/70",
   flat: "border border-transparent bg-slate-100",
 } as const;
 
