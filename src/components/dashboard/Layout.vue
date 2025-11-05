@@ -1,149 +1,106 @@
 <template>
   <div
-    class="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-6 lg:flex-row"
+    class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row"
   >
-    <Column width="md">
+    <Column width="md" class="px-0">
       <NavigationColumn
         :items="navigationItems"
         :active-id="activeNavId"
+        :loading="isLoading"
+        :error="errorMessage"
         @select="selectNavigation"
       />
     </Column>
-    <div class="flex flex-1 flex-col gap-4 overflow-hidden">
-      <HeaderBar
-        :title="activeNav?.label ?? 'Dashboard'"
-        :subtitle="activeNav?.description"
-      />
-      <DataView :items="activeItems" />
+    <div class="flex flex-1 flex-col gap-6 overflow-hidden">
+      <HeaderBar :title="headerTitle" :subtitle="headerSubtitle" />
+      <RouterView />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, watchEffect } from "vue";
+import { storeToRefs } from "pinia";
+import { useRoute, useRouter } from "vue-router";
 import { Column } from "../core";
 import HeaderBar from "./HeaderBar.vue";
-import DataView from "./DataView.vue";
 import NavigationColumn from "./NavigationColumn.vue";
-import type { DataItem, NavigationItem } from "./types";
+import { useNavigationStore } from "../../stores/navigation";
 
-const navigationItems: NavigationItem[] = [
-  {
-    id: "overview",
-    label: "Overview",
-    description: "High-level metrics that summarise current performance.",
-    items: [
-      {
-        id: "overview-total-revenue",
-        title: "Total Revenue",
-        value: "$128K",
-        change: "+12.4%",
-        description: "Growth in the last 30 days",
-      },
-      {
-        id: "overview-active-users",
-        title: "Active Users",
-        value: "12,842",
-        change: "+6.8%",
-        description: "Users active in the past week",
-      },
-      {
-        id: "overview-conversion-rate",
-        title: "Conversion Rate",
-        value: "4.7%",
-        change: "+1.1%",
-        description: "Rate of visitors completing a goal",
-      },
-      {
-        id: "overview-churn-rate",
-        title: "Churn Rate",
-        value: "2.1%",
-        change: "-0.4%",
-        description: "Customer churn compared with previous cycle",
-      },
-    ],
-  },
-  {
-    id: "sales",
-    label: "Sales",
-    description: "Breakdown of sales performance across channels.",
-    items: [
-      {
-        id: "sales-new-orders",
-        title: "New Orders",
-        value: "934",
-        change: "+9.3%",
-        description: "Orders received this month",
-      },
-      {
-        id: "sales-avg-order-value",
-        title: "Avg. Order Value",
-        value: "$137",
-        change: "+3.2%",
-        description: "Average revenue per order",
-      },
-      {
-        id: "sales-return-rate",
-        title: "Return Rate",
-        value: "1.8%",
-        change: "-0.6%",
-        description: "Returns as a percentage of all orders",
-      },
-      {
-        id: "sales-pipeline",
-        title: "Pipeline Coverage",
-        value: "3.2×",
-        change: "+0.5×",
-        description: "Ratio of pipeline to target",
-      },
-    ],
-  },
-  {
-    id: "support",
-    label: "Support",
-    description: "Key indicators for the customer support team.",
-    items: [
-      {
-        id: "support-open-tickets",
-        title: "Open Tickets",
-        value: "84",
-        change: "-12.0%",
-        description: "Tickets awaiting response",
-      },
-      {
-        id: "support-first-response-time",
-        title: "First Response Time",
-        value: "1h 14m",
-        change: "-18m",
-        description: "Average initial reply time",
-      },
-      {
-        id: "support-csat",
-        title: "CSAT Score",
-        value: "92%",
-        change: "+4%",
-        description: "Customer satisfaction score",
-      },
-      {
-        id: "support-resolutions",
-        title: "Resolutions Today",
-        value: "146",
-        change: "+11.3%",
-        description: "Tickets resolved in the last 24 hours",
-      },
-    ],
-  },
-];
+const route = useRoute();
+const router = useRouter();
+const navigationStore = useNavigationStore();
 
-const activeNavId = ref<NavigationItem["id"]>(navigationItems[0]!.id);
+const { items, firstItemId, loading, error } = storeToRefs(navigationStore);
+
+onMounted(() => {
+  navigationStore.load();
+});
+
+const navigationItems = computed(() => items.value);
+
+const activeNavId = computed(() => {
+  const param = route.params.navId;
+  if (Array.isArray(param)) {
+    return param[0];
+  }
+  return param ?? firstItemId.value ?? undefined;
+});
 
 const activeNav = computed(() =>
-  navigationItems.find((item) => item.id === activeNavId.value)
+  activeNavId.value
+    ? navigationStore.getById(activeNavId.value) ?? undefined
+    : undefined
 );
 
-const activeItems = computed<DataItem[]>(() => activeNav.value?.items ?? []);
+const isLoading = computed(() => loading.value);
+const errorMessage = computed(() => error.value);
 
-const selectNavigation = (id: NavigationItem["id"]) => {
-  activeNavId.value = id;
+const headerTitle = computed(() => {
+  if (isLoading.value && !items.value.length) {
+    return "Loading Pokémon…";
+  }
+  if (errorMessage.value && !items.value.length) {
+    return "Something went wrong";
+  }
+  return activeNav.value?.label ?? "Pokédex Dashboard";
+});
+
+const headerSubtitle = computed(() => {
+  if (isLoading.value && !items.value.length) {
+    return "Fetching Pokémon data from the PokéAPI.";
+  }
+  if (errorMessage.value && !items.value.length) {
+    return errorMessage.value;
+  }
+  return activeNav.value?.description;
+});
+
+watchEffect(() => {
+  if (!items.value.length) {
+    return;
+  }
+
+  const fallbackId = firstItemId.value;
+
+  if (!activeNavId.value && fallbackId) {
+    router.replace({ name: "section", params: { navId: fallbackId } });
+    return;
+  }
+
+  if (
+    activeNavId.value &&
+    !navigationStore.hasId(activeNavId.value) &&
+    fallbackId
+  ) {
+    router.replace({ name: "section", params: { navId: fallbackId } });
+  }
+});
+
+const selectNavigation = (id: string) => {
+  if (!id || id === activeNavId.value || isLoading.value) {
+    return;
+  }
+  router.push({ name: "section", params: { navId: id } });
 };
 </script>

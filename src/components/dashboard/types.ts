@@ -1,9 +1,18 @@
+export interface PokemonStat {
+  name: string;
+  value: number;
+}
+
 export interface DataItem {
   id: string;
-  title: string;
-  value: string;
-  change?: string;
-  description?: string;
+  name: string;
+  sprite: string;
+  types: string[];
+  baseExperience: number;
+  height: number;
+  weight: number;
+  abilities: string[];
+  stats: PokemonStat[];
 }
 
 export interface NavigationItem {
