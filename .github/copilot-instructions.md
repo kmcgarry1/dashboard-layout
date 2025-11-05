@@ -32,7 +32,7 @@
 ## Stats & Visualisation
 
 - `PokemonStats.vue` computes each Pokémon’s max stat and passes it to `PokemonStatBar.vue` as `max-value`.
-- `PokemonStatBar.vue` normalizes widths against `(max-value + 10)` so lower-level Pokémon still render proportionate bars; reuse this prop when embedding stat bars elsewhere.
+- `PokemonStatBar.vue` normalizes widths against the maximum of `(maxValue ?? stat.value)` and `BASE_STAT_MIN`, so lower-level Pokémon still render proportionate bars; reuse this prop when embedding stat bars elsewhere.
 
 ## Async & Error Handling
 
