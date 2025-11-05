@@ -12,7 +12,7 @@
     >
       {{ errorMessage }}
     </div>
-    <DataView v-else :items="viewItems" />
+    <DataView v-else :items="viewItems" :highlight-item="searchResult" />
   </div>
 </template>
 
@@ -22,6 +22,7 @@ import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import DataView from "../components/dashboard/DataView.vue";
 import { useNavigationStore } from "../stores/navigation";
+import { useSearchStore } from "../stores/search";
 
 const props = withDefaults(
   defineProps<{
@@ -41,6 +42,9 @@ const {
   error,
   isLoaded,
 } = storeToRefs(navigationStore);
+
+const searchStore = useSearchStore();
+const { result: searchResult } = storeToRefs(searchStore);
 
 onMounted(() => {
   navigationStore.load();

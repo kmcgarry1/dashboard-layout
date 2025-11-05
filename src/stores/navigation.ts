@@ -1,6 +1,8 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
-import type { DataItem, NavigationItem, PokemonStat } from "../components/dashboard/types";
+import type { DataItem, NavigationItem } from "../components/dashboard/types";
+import { getPokemonDetailed } from "../api/pokeapi";
+import { normalizePokemon } from "../utils/pokemon";
 
 interface CategoryConfig {
   id: string;
@@ -36,42 +38,9 @@ const CATEGORY_CONFIG: CategoryConfig[] = [
   },
 ];
 
-const API_BASE_URL = "https://pokeapi.co/api/v2/pokemon";
-
 async function fetchPokemon(name: string): Promise<DataItem> {
-  const response = await fetch(`${API_BASE_URL}/${name}`);
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch data for ${name}`);
-  }
-
-  const data = await response.json();
-
-  const sprite =
-    data.sprites?.other?.["official-artwork"]?.front_default ??
-    data.sprites?.front_default ??
-    "";
-
-  const stats: PokemonStat[] = data.stats.map((stat: any) => ({
-    name: stat.stat.name,
-    value: stat.base_stat,
-  }));
-
-  const abilities: string[] = data.abilities.map(
-    (ability: any) => ability.ability.name
-  );
-
-  return {
-    id: String(data.id),
-    name: data.name,
-    sprite,
-    types: data.types.map((type: any) => type.type.name),
-    baseExperience: data.base_experience,
-    height: data.height,
-    weight: data.weight,
-    abilities,
-    stats,
-  };
+  const data = await getPokemonDetailed(name);
+  return normalizePokemon(data);
 }
 
 export const useNavigationStore = defineStore("navigation", () => {

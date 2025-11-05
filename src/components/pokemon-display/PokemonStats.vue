@@ -5,15 +5,18 @@
       :key="stat.name"
       class="flex items-center gap-4"
     >
-      <span class="w-24 text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <span
+        class="w-24 text-xs font-semibold uppercase tracking-wide text-slate-500"
+      >
         {{ formatLabel(stat.name) }}
       </span>
-      <PokemonStatBar :stat="stat" class="flex-1" />
+      <PokemonStatBar :stat="stat" :max-value="maxStatValue" class="flex-1" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import PokemonStatBar from "./PokemonStatBar.vue";
 
 const props = defineProps<{
@@ -22,6 +25,10 @@ const props = defineProps<{
     value: number;
   }[];
 }>();
+
+const maxStatValue = computed(() =>
+  props.stats.reduce((max, stat) => Math.max(max, stat.value), 0)
+);
 
 const formatLabel = (label: string) =>
   label

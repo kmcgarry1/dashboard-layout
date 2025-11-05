@@ -12,15 +12,25 @@ export interface PokemonList {
   results: PokemonListItem[];
 }
 
+export interface PokemonSprites {
+  front_default: string | null;
+  back_default: string | null;
+  other?: {
+    [key: string]:
+      | {
+          front_default: string | null;
+        }
+      | undefined;
+  };
+}
+
 export interface PokemonBasic {
   id: number;
   name: string;
   height: number;
   weight: number;
-  sprites: {
-    front_default: string;
-    back_default: string;
-  };
+  base_experience: number;
+  sprites: PokemonSprites;
   types: Array<{
     type: {
       name: string;

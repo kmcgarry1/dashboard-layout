@@ -1,8 +1,8 @@
 <template>
   <div
-    class="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-1 p-2 lg:flex-row"
+    class="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-8 px-4 py-8 sm:px-6 lg:flex-row"
   >
-    <Column width="md">
+    <Column width="md" class="px-0">
       <NavigationColumn
         :items="navigationItems"
         :active-id="activeNavId"
@@ -11,7 +11,7 @@
         @select="selectNavigation"
       />
     </Column>
-    <div class="flex flex-1 flex-col gap-4 overflow-hidden">
+    <div class="flex flex-1 flex-col gap-6 overflow-hidden">
       <HeaderBar :title="headerTitle" :subtitle="headerSubtitle" />
       <RouterView />
     </div>
