@@ -27,7 +27,7 @@
 - `SearchInput.vue` emits `search`/`clear` events with a `modelValue` binding; `HeaderBar.vue` wires it to the search store and displays results inline.
 - `NavigationColumn.vue` consumes full `NavigationItem` objects and emits `select`; avoid mutating store data directly.
 - Pokémon detail components under `src/components/pokemon-display/` compose image, metadata, abilities, and stats via nested components.
-- Reuse the `Card` slots and `imagePlacement` prop when building new cards; see `Pokemon.vue` for a left-aligned image example.
+- Reuse the `Card` slots and `imagePlacement` prop when building new cards; see `Pokemon.vue` for a top-aligned image example.
 
 ## Stats & Visualisation
 
