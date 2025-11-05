@@ -38,11 +38,10 @@ const normalizedValue = computed(() => {
     BASE_STAT_MIN,
     props.maxValue ?? props.stat.value
   );
-  const dynamicMax = Math.max(highestStat, BASE_STAT_MIN);
   const clampedValue = Math.min(
     Math.max(props.stat.value, BASE_STAT_MIN),
-    dynamicMax
+    highestStat
   );
-  return Math.round((clampedValue / dynamicMax) * 100);
+  return Math.round((clampedValue / highestStat) * 100);
 });
 </script>
